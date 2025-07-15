@@ -1581,6 +1581,23 @@ class VirtualMachine extends EventEmitter {
     configureScratchLinkSocketFactory (factory) {
         this.runtime.configureScratchLinkSocketFactory(factory);
     }
+    
 }
 
 module.exports = VirtualMachine;
+
+VirtualMachine.prototype.importSprite = async function (files, activate = true) {
+    const zip = new JSZip();
+    for (const file of files) {
+        zip.file(file.name, file);
+    }
+
+    const arrayBuffer = await zip.generateAsync({ type: 'arraybuffer' });
+
+    return this.addSprite(arrayBuffer).then(targetId => {
+        if (activate && targetId) {
+            this.setEditingTarget(targetId);
+        }
+        return targetId;
+    });
+};
