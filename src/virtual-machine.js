@@ -1601,3 +1601,13 @@ VirtualMachine.prototype.importSprite = async function (files, activate = true) 
         return targetId;
     });
 };
+
+VirtualMachine.prototype.addBackdropFromFiles = async function (files) {
+    const zip = new JSZip();
+    for (const file of files) {
+        zip.file(file.name, file);
+    }
+    const content = await zip.generateAsync({type: 'uint8array'});
+    await this.addProject(content);
+};
+
