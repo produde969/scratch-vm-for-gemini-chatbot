@@ -1,4 +1,4 @@
-let _TextEncoder;
+//virtualmachine.jslet _TextEncoder;
 if (typeof TextEncoder === 'undefined') {
     _TextEncoder = require('text-encoding').TextEncoder;
 } else {
@@ -1602,12 +1602,19 @@ VirtualMachine.prototype.importSprite = async function (files, activate = true) 
     });
 };
 
-VirtualMachine.prototype.addBackdropFromFiles = async function (files) {
+VirtualMachine.prototype.addBackdropFromFiles = async function (files, activate = true) {
     const zip = new JSZip();
     for (const file of files) {
         zip.file(file.name, file);
     }
-    const content = await zip.generateAsync({type: 'uint8array'});
-    await this.addProject(content);
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const arrayBuffer = await blob.arrayBuffer();
+
+    return this.loadProject(arrayBuffer).then(() => {
+        if (activate) {
+            this.setEditingTarget(this.runtime.stage.id);
+        }
+    });
 };
 
